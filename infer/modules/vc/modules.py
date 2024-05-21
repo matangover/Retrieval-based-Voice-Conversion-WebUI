@@ -156,7 +156,8 @@ class VC:
     ):
         if input_audio_path is None:
             return "You need to upload an audio", None
-        f0_up_key = int(f0_up_key)
+        if not isinstance(f0_up_key, tuple):
+            f0_up_key = int(f0_up_key)
         try:
             audio = load_audio(input_audio_path, 16000)
             audio_max = np.abs(audio).max() / 0.95

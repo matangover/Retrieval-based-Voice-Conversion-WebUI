@@ -16,9 +16,10 @@ from infer.modules.vc.modules import VC
 # In your Terminal or CMD or whatever
 
 
-def arg_parse() -> tuple:
+def arg_parse() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--f0up_key", type=int, default=0)
+    parser.add_argument("--f0_target", type=float)
     parser.add_argument("--input_path", type=str, help="input path")
     parser.add_argument("--index_path", type=str, help="index path")
     parser.add_argument("--f0method", type=str, default="harvest", help="harvest or pm")
@@ -46,10 +47,11 @@ def main():
     config.is_half = args.is_half if args.is_half else config.is_half
     vc = VC(config)
     vc.get_vc(args.model_name)
+    f0up_key = ("target", args.f0_target) if args.f0_target is not None else args.f0up_key
     _, wav_opt = vc.vc_single(
         0,
         args.input_path,
-        args.f0up_key,
+        f0up_key,
         None,
         args.f0method,
         args.index_path,

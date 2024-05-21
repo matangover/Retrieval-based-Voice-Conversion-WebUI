@@ -17,6 +17,7 @@ import torch
 import torch.nn.functional as F
 import torchcrepe
 from scipy import signal
+import pandas as pd
 
 now_dir = os.getcwd()
 sys.path.append(now_dir)
@@ -176,7 +177,12 @@ class Pipeline(object):
                 .numpy()
             )
 
-        f0 *= pow(2, f0_up_key / 12)
+        if isinstance(f0_up_key, tuple):
+            assert f0_up_key[0] == "target"
+            print(f"Adaptive pitch target: {f0_up_key[1]} Hz")
+            f0 = adjust_f0(f0, f0_up_key[1])
+        else:
+            f0 *= pow(2, f0_up_key / 12)
         # with open("test.txt","w")as f:f.write("\n".join([str(i)for i in f0.tolist()]))
         tf0 = self.sr // self.window  # 每秒f0点数
         if inp_f0 is not None:
@@ -477,3 +483,26 @@ class Pipeline(object):
         elif torch.backends.mps.is_available():
             torch.mps.empty_cache()
         return audio_opt
+
+
+def adjust_f0(f0, target_pitch_hz, shift_window_secs=3, scale_window_secs=1, fps=100, max_range=12):
+    # Change 0 to NaN to ignore unvoiced frames
+    f0 = f0.copy()
+    f0[f0 == 0] = np.nan
+    # Convert to semitones relative to target pitch
+    semitone_diff = 12 * np.log2(f0 / target_pitch_hz)
+    # Calculate rolling mean and subtract it to shift pitch to target
+    shift_window_frames = int(shift_window_secs * fps)
+    smoothed = pd.Series(semitone_diff).rolling(shift_window_frames, center=True, min_periods=1).mean()
+    shifted = semitone_diff - smoothed
+    # Calculate rolling range and scale to target range
+    scale_window_frames = int(scale_window_secs * fps)
+    # Take rolling 90th percentile of absolute value (not taking max abs to avoid potential outliers)
+    rolling_range = shifted.abs().rolling(scale_window_frames, center=True, min_periods=1).quantile(0.9)
+    max_offset = max_range / 2
+    scale_factor = rolling_range.clip(lower=max_offset) / max_offset
+    scaled = shifted / scale_factor
+    # Convert back to Hz
+    scaled_hz = target_pitch_hz * 2 ** (scaled / 12)
+    scaled_hz[np.isnan(scaled_hz)] = 0
+    return scaled_hz
