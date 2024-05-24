@@ -394,7 +394,8 @@ class Pipeline(object):
             pitchf = torch.tensor(pitchf, device=self.device).unsqueeze(0).float()
         t2 = ttime()
         times[1] += t2 - t1
-        for t in opt_ts:
+        for i, t in enumerate(opt_ts):
+            print(f"Processing segment {i + 1} of {len(opt_ts) + 1}")
             t = t // self.window * self.window
             if if_f0 == 1:
                 audio_opt.append(
@@ -431,6 +432,8 @@ class Pipeline(object):
                     )[self.t_pad_tgt : -self.t_pad_tgt]
                 )
             s = t
+        
+        print(f"Processing segment {i + 1} of {i + 1}")
         if if_f0 == 1:
             audio_opt.append(
                 self.vc(
@@ -482,6 +485,7 @@ class Pipeline(object):
             torch.cuda.empty_cache()
         elif torch.backends.mps.is_available():
             torch.mps.empty_cache()
+        print("Finished vc")
         return audio_opt
 
 
