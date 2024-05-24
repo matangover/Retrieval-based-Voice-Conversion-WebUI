@@ -394,8 +394,9 @@ class Pipeline(object):
             pitchf = torch.tensor(pitchf, device=self.device).unsqueeze(0).float()
         t2 = ttime()
         times[1] += t2 - t1
+        n_segments = len(opt_ts) + 1
         for i, t in enumerate(opt_ts):
-            print(f"Processing segment {i + 1} of {len(opt_ts) + 1}")
+            print(f"Processing segment {i + 1} of {n_segments}")
             t = t // self.window * self.window
             if if_f0 == 1:
                 audio_opt.append(
@@ -433,7 +434,7 @@ class Pipeline(object):
                 )
             s = t
         
-        print(f"Processing segment {i + 1} of {i + 1}")
+        print(f"Processing segment {n_segments} of {n_segments}")
         if if_f0 == 1:
             audio_opt.append(
                 self.vc(
