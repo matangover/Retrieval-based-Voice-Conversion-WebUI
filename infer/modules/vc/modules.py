@@ -159,7 +159,14 @@ class VC:
         if not isinstance(f0_up_key, tuple):
             f0_up_key = int(f0_up_key)
         try:
-            audio = load_audio(input_audio_path, 16000)
+            if isinstance(input_audio_path, str):
+                audio = load_audio(input_audio_path, 16000)
+            else:
+                assert isinstance(input_audio_path, np.ndarray)
+                assert input_audio_path.dtype == np.float32
+                assert input_audio_path.ndim == 1
+                audio = input_audio_path
+
             audio_max = np.abs(audio).max() / 0.95
             if audio_max > 1:
                 audio /= audio_max
