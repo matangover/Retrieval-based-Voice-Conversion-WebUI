@@ -358,10 +358,15 @@ def get_hparams(init=True):
         required=True,
         help="if caching the dataset in GPU memory, 1 or 0",
     )
+    parser.add_argument(
+        "--output-dir",
+        default=".",
+        help="where to save model checkpoints and training logs",
+    )
 
     args = parser.parse_args()
     name = args.experiment_dir
-    experiment_dir = os.path.join("./logs", args.experiment_dir)
+    experiment_dir = os.path.join(args.output_dir, "logs", args.experiment_dir)
 
     config_save_path = os.path.join(experiment_dir, "config.json")
     with open(config_save_path, "r") as f:
