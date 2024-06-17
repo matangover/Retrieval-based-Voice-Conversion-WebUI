@@ -373,6 +373,7 @@ def get_hparams(init=True):
         config = json.load(f)
 
     hparams = HParams(**config)
+    hparams.output_dir = args.output_dir
     hparams.model_dir = hparams.experiment_dir = experiment_dir
     hparams.save_every_epoch = args.save_every_epoch
     hparams.name = name
