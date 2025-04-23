@@ -541,21 +541,21 @@ def train_and_evaluate(
                 scalar_dict.update(
                     {"loss/d_g/{}".format(i): v for i, v in enumerate(losses_disc_g)}
                 )
-                image_dict = {
-                    "slice/mel_org": utils.plot_spectrogram_to_numpy(
-                        y_mel[0].data.cpu().numpy()
-                    ),
-                    "slice/mel_gen": utils.plot_spectrogram_to_numpy(
-                        y_hat_mel[0].data.cpu().numpy()
-                    ),
-                    "all/mel": utils.plot_spectrogram_to_numpy(
-                        mel[0].data.cpu().numpy()
-                    ),
-                }
+                # image_dict = {
+                #     "slice/mel_org": utils.plot_spectrogram_to_numpy(
+                #         y_mel[0].data.cpu().numpy()
+                #     ),
+                #     "slice/mel_gen": utils.plot_spectrogram_to_numpy(
+                #         y_hat_mel[0].data.cpu().numpy()
+                #     ),
+                #     "all/mel": utils.plot_spectrogram_to_numpy(
+                #         mel[0].data.cpu().numpy()
+                #     ),
+                # }
                 utils.summarize(
                     writer=writer,
                     global_step=global_step,
-                    images=image_dict,
+                    # images=image_dict,
                     scalars=scalar_dict,
                 )
         global_step += 1
